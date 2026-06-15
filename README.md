@@ -9,6 +9,7 @@ The project started as a port and redesign of a radius mining helper. It evolved
 
 - Fast digging - removes the client-side delay between mined blocks.
 - Radius digging - mines nearby blocks around the target block with queueing, previews, modes, shapes, and packet pacing.
+- Smart safety layer - protects useful blocks, avoids lava, shows skipped targets, and limits packet pressure.
 
 > Use this mod only where client-side mining helpers are allowed by the server rules.
 
@@ -40,12 +41,13 @@ Radius digging includes:
 - Radius limit up to 6 blocks.
 - Queue only runs while the attack button is held with a pickaxe in the main hand.
 - Shapes: Wall, Tunnel, Cube.
-- Presets: Server, Normal, Deepslate, Soft blocks.
+- Profiles: Server safe, Mine, Deepslate, Ore vein, Clean-up, Soft blocks, Max speed.
+- Block filters: Everything, Exact block, Similar blocks, Ore vein.
 - Hard-block priority for deepslate-like blocks.
 - Extra wait time for high-hardness blocks.
-- Optional same-block-only filter.
 - Optional reach filter to avoid blocks the server is likely to reject.
 - Auto slowdown when blocks do not confirm as broken.
+- Optional protection for useful blocks, fragile blocks, player space, and lava-adjacent blocks.
 
 ### Visual Feedback
 
@@ -54,12 +56,16 @@ MassDig highlights mining targets in the world:
 - Yellow: blocks currently selected by the radius preview.
 - Blue: blocks already waiting in the mining queue.
 - Red: the active block currently being mined.
+- Gray: skipped by block filter or reach checks.
+- Orange: protected useful or fragile blocks.
+- Dark red: dangerous blocks near lava.
 
 ### Server-Aware Controls
 
 The mod does not try to bypass server rules. Instead it exposes safe controls:
 
 - Packet-per-second budget.
+- Kick guard levels: Light, Normal, Strong.
 - Conservative and faster radius modes.
 - Legacy burst mode for soft blocks.
 - Reach filtering.
@@ -69,9 +75,10 @@ The mod does not try to bypass server rules. Instead it exposes safe controls:
 
 The settings screen is organized around the user's mental model:
 
-- Fast digging - one independent feature.
-- Radius digging - area mining, radius, shape, and preview.
-- Advanced - packet pacing, hard blocks, presets, and filters.
+- Main - independent toggles, HUD, and previews.
+- Drill - profile, radius, speed, shape, and what block types to mine.
+- Smart - packet guard, hard-block timing, reach checks, and slowdown.
+- Safety - useful blocks, fragile blocks, player space, lava, and low-health pause.
 
 The UI is localized in English and Russian and is available through Mod Menu.
 
@@ -84,6 +91,9 @@ Default key bindings:
 | `;` | Open MassDig settings |
 | `\` | Toggle radius digging |
 | `G` | Toggle fast digging |
+| `B` | Cycle profile |
+| `V` | Cycle radius shape |
+| `N` | Cycle block filter |
 | `[` | Decrease radius |
 | `]` | Increase radius |
 
@@ -104,11 +114,12 @@ All key bindings can be changed in Minecraft controls.
 MassDig uses a small queue-based mining state machine:
 
 1. Collect target blocks from the current hit result.
-2. Filter invalid, unreachable, air, or unbreakable blocks.
-3. Prioritize focused and hard blocks.
-4. Mine one server-visible active block at a time.
-5. Confirm break results from the client level.
-6. Retry or slow down when the server does not confirm.
+2. Classify blocks by filter mode, reach, protection rules, and danger checks.
+3. Show allowed, queued, active, skipped, protected, and dangerous blocks in separate colors.
+4. Prioritize focused and hard blocks.
+5. Mine one server-visible active block at a time.
+6. Confirm break results from the client level.
+7. Retry, wait longer, or slow down when the server does not confirm.
 
 This design avoids firing a large burst of block actions for every block in the radius and gives hard blocks like deepslate enough time to be processed.
 

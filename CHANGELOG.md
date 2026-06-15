@@ -2,6 +2,24 @@
 
 All notable changes to MassDig are documented here.
 
+## 2.6.0 - 2026-06-15
+
+### Added
+
+- Scenario profiles: Server safe, Mine, Deepslate, Ore vein, Clean-up, Soft blocks, and Max speed.
+- Block matching modes: Everything, Exact block, Similar blocks, and Ore vein.
+- Beginner-friendly kick guard levels: Light, Normal, and Strong.
+- Smart timing for hard blocks, deepslate, and deepslate ores.
+- Protection filters for useful blocks, fragile blocks, player space, lava-adjacent blocks, open screens, and low health.
+- Separate skipped/protected/danger preview colors in addition to preview, queued, and active colors.
+- HUD status line with fast digging, radius drill, queue, skipped, mode, shape, and block filter state.
+- Hotkeys for cycling profile, shape, and block filter.
+
+### Changed
+
+- Settings screen is now organized into Main, Drill, Smart, and Safety columns.
+- Presets now configure the new smart filters and protection levels automatically.
+
 ## 2.5.3 - 2026-06-15
 
 ### Fixed

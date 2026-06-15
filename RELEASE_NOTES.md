@@ -1,21 +1,24 @@
-# MassDig 2.5.3
+# MassDig 2.6.0
 
-MassDig 2.5.3 is a polished Minecraft 26.1.2 Fabric client mod focused on mining workflow, configurability, and clear user feedback.
+MassDig 2.6.0 is a polished Minecraft 26.1.2 Fabric client mod focused on mining workflow, configurability, and clear user feedback.
 
 ## Highlights
 
 - Independent Fast digging and Radius digging features.
-- Live in-world preview of radius targets.
-- Separate colors for preview, queued blocks, and the active block.
+- Live in-world preview of radius targets, skipped blocks, protected blocks, and danger blocks.
+- Scenario profiles for servers, mines, deepslate, ore veins, clean-up, soft blocks, and max speed.
+- Block filters for everything, exact block, similar blocks, and ore veins.
+- Kick guard levels: Light, Normal, Strong.
 - Beginner-friendly settings screen with English and Russian localization.
 - Server-aware packet pacing and reach filtering.
-- Dedicated presets for Server, Normal, Deepslate, and Soft blocks.
+- Protection for useful blocks, fragile blocks, player space, lava-adjacent blocks, open screens, and low health.
 
-## What's New in 2.5.3
+## What's New in 2.6.0
 
-- Radius mining now clears its queue unless the attack button is held while a pickaxe is in the main hand.
-- Releasing attack or switching away from a pickaxe now stops the active radius task immediately.
-- Fast digging remains a separate feature and is not tied to the radius mining queue.
+- Reworked the settings screen into Main, Drill, Smart, and Safety columns.
+- Added smart profiles and block matching so players choose a situation instead of tuning raw internals.
+- Added skipped/protected/danger highlighting so players can see why blocks are not mined.
+- Added stronger convenience safeguards for servers and accidental base damage.
 
 ## Compatibility
 
@@ -29,8 +32,8 @@ MassDig 2.5.3 is a polished Minecraft 26.1.2 Fabric client mod focused on mining
 
 Attach these files to the GitHub release:
 
-- `massdig-2.5.3+mc26.1.2.jar`
-- `massdig-2.5.3+mc26.1.2-sources.jar`
+- `massdig-2.6.0+mc26.1.2.jar`
+- `massdig-2.6.0+mc26.1.2-sources.jar`
 
 ## Notes
 

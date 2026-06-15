@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Runtime configs and logs
+run/
+logs/
+crash-reports/
+*.log
+
+# Local artifacts
+*.tmp
+*.bak

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "massdig",
+  "version": "${version}",
+  "name": "MassDig",
+  "description": "Client-side mining quality-of-life mod with independent fast mining, radius digging, previews, presets, localization, and server-aware packet pacing.",
+  "authors": ["dimar"],
+  "contact": {
+    "homepage": "https://github.com/rub1kub/massdig",
+    "sources": "https://github.com/rub1kub/massdig",
+    "issues": "https://github.com/rub1kub/massdig/issues"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "org.main.massdig.client.MassdigClient"
+    ],
+    "modmenu": [
+      "org.main.massdig.client.MassdigModMenu"
+    ]
+  },
+  "mixins": [
+    "massdig.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "minecraft": "~26.1",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}

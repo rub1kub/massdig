@@ -1,6 +1,5 @@
 # MassDig
 
-[![Build](https://github.com/rub1kub/massdig/actions/workflows/build.yml/badge.svg)](https://github.com/rub1kub/massdig/actions/workflows/build.yml)
 [![Release](https://img.shields.io/github/v/release/rub1kub/massdig?include_prereleases&label=release)](https://github.com/rub1kub/massdig/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 

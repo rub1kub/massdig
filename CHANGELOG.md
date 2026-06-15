@@ -2,6 +2,14 @@
 
 All notable changes to MassDig are documented here.
 
+## 2.9.1 - 2026-06-15
+
+### Fixed
+
+- Reworked the new MassDig hub after the first card layout looked too empty and hard to read in-game.
+- Main screen now uses a compact vanilla-style layout with clear action buttons and short mode explanations.
+- Important mode explanations are now visible directly in the menu instead of relying on faint card text.
+
 ## 2.9.0 - 2026-06-15
 
 ### Added

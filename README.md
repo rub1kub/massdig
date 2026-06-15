@@ -10,6 +10,7 @@ The project started as a port and redesign of a radius mining helper. It evolved
 - Fast digging - removes the client-side delay between mined blocks.
 - Radius digging - mines nearby blocks around the target block with queueing, previews, modes, shapes, and packet pacing.
 - Smart safety layer - protects useful blocks, avoids lava, shows skipped targets, and limits packet pressure.
+- AutoDig jobs - visually plan and run larger mining tasks like clearing an area, quarrying, tunneling, or following ore veins.
 
 > Use this mod only where client-side mining helpers are allowed by the server rules.
 
@@ -71,6 +72,19 @@ The mod does not try to bypass server rules. Instead it exposes safe controls:
 - Reach filtering.
 - Auto slowdown on failed confirmations.
 
+### AutoDig Jobs
+
+AutoDig is a separate visual planner for bigger tasks:
+
+- Clear area: select two corners and mine the inside from top to bottom.
+- Quarry: select a footprint and dig down by the chosen depth.
+- Tunnel: aim at a wall and generate a tunnel from width, height, and length.
+- Ore vein: aim at an ore and follow connected ore blocks of the same type.
+- Preview: planned blocks, protected blocks, blocked targets, and the active block are highlighted in-world.
+- Tool manager: switches to the best hotbar tool and skips tools below the configured durability.
+- Safety pauses: full inventory, missing safe tool, open screen, low health, and lava-adjacent blocks.
+- Careful autopilot: optional experimental walking toward the next work area.
+
 ## Screens and UX
 
 The settings screen is organized around the user's mental model:
@@ -89,6 +103,7 @@ Default key bindings:
 | Key | Action |
 | --- | --- |
 | `;` | Open MassDig settings |
+| `H` | Open AutoDig planner |
 | `\` | Toggle radius digging |
 | `G` | Toggle fast digging |
 | `B` | Cycle profile |
@@ -98,6 +113,8 @@ Default key bindings:
 | `]` | Increase radius |
 
 All key bindings can be changed in Minecraft controls.
+
+AutoDig also exposes optional unbound keys for setting point A, setting point B, start/pause, and stop.
 
 ## Technical Stack
 
@@ -113,13 +130,15 @@ All key bindings can be changed in Minecraft controls.
 
 MassDig uses a small queue-based mining state machine:
 
-1. Collect target blocks from the current hit result.
+1. Collect target blocks from the current hit result or AutoDig job selection.
 2. Classify blocks by filter mode, reach, protection rules, and danger checks.
 3. Show allowed, queued, active, skipped, protected, and dangerous blocks in separate colors.
 4. Prioritize focused and hard blocks.
 5. Mine one server-visible active block at a time.
 6. Confirm break results from the client level.
 7. Retry, wait longer, or slow down when the server does not confirm.
+
+AutoDig uses the same conservative mining loop, but its target list comes from a visual job plan instead of the crosshair radius.
 
 This design avoids firing a large burst of block actions for every block in the radius and gives hard blocks like deepslate enough time to be processed.
 

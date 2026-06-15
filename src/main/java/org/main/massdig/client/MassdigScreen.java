@@ -101,6 +101,9 @@ public final class MassdigScreen extends Screen {
             MassdigClient.config().save();
             b.setMessage(pauseScreenMessage());
         }));
+        addRenderableWidget(button(Component.translatable("massdig.screen.auto_jobs"), mainX, mainY + ROW * 6, "massdig.tooltip.auto_jobs", b -> {
+            Minecraft.getInstance().setScreen(new AutoDigScreen(this));
+        }));
     }
 
     private void addRadiusControls() {

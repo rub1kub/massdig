@@ -41,6 +41,17 @@ public final class MassdigConfig {
     public boolean avoidLava = true;
     public boolean pauseWhenScreenOpen = true;
     public boolean pauseOnLowHealth = false;
+    public String autoJobType = AutoDigJobType.CLEAR_AREA.id;
+    public int autoWidth = 3;
+    public int autoHeight = 3;
+    public int autoLength = 32;
+    public int autoDepth = 16;
+    public boolean autoToolSwitch = true;
+    public int autoMinToolDurability = 8;
+    public boolean autoStopWhenInventoryFull = true;
+    public boolean autoStopWhenNoTool = true;
+    public boolean autoKeepOres = false;
+    public boolean autoAutopilot = false;
 
     public static MassdigConfig load() {
         if (!Files.exists(PATH)) {
@@ -83,9 +94,15 @@ public final class MassdigConfig {
         }
         matchMode = MassdigMatchMode.byId(matchMode).id;
         protection = MassdigProtection.byId(protection).id;
+        autoJobType = AutoDigJobType.byId(autoJobType).id;
         packetLimitPerSecond = clamp(packetLimitPerSecond, 40, 260);
         safetyExtraTicks = clamp(safetyExtraTicks, 0, 20);
         legacyBlocksPerTick = clamp(legacyBlocksPerTick, 4, 64);
+        autoWidth = clamp(autoWidth, 1, 9);
+        autoHeight = clamp(autoHeight, 1, 6);
+        autoLength = clamp(autoLength, 1, 256);
+        autoDepth = clamp(autoDepth, 1, 128);
+        autoMinToolDurability = clamp(autoMinToolDurability, 1, 90);
         return this;
     }
 
@@ -109,6 +126,10 @@ public final class MassdigConfig {
         return MassdigProtection.byId(protection);
     }
 
+    public AutoDigJobType autoJobType() {
+        return AutoDigJobType.byId(autoJobType);
+    }
+
     public void setMode(MassdigMode mode) {
         this.mode = mode.id;
         this.packetLimitPerSecond = mode.defaultPacketsPerSecond;
@@ -125,6 +146,10 @@ public final class MassdigConfig {
     public void setProtection(MassdigProtection protection) {
         this.protection = protection.id;
         this.packetLimitPerSecond = Math.min(packetLimitPerSecond, protection.packetCap);
+    }
+
+    public void setAutoJobType(AutoDigJobType type) {
+        this.autoJobType = type.id;
     }
 
     public static int clamp(int value, int min, int max) {

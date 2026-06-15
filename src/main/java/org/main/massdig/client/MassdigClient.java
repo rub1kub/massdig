@@ -86,7 +86,8 @@ public final class MassdigClient implements ClientModInitializer {
     }
 
     public static boolean shouldSuppressVanillaMining() {
-        return config != null && config.radiusEnabled && activeTask != null && !activeTask.waitingForConfirm;
+        return AutoDigController.ownsMining()
+                || (config != null && config.radiusEnabled && activeTask != null && !activeTask.waitingForConfirm);
     }
 
     public static void setActive(boolean active) {
@@ -167,9 +168,13 @@ public final class MassdigClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_LEFT_BRACKET,
                 CATEGORY
         ));
+        AutoDigController.register(CATEGORY);
 
         ClientTickEvents.END_CLIENT_TICK.register(MassdigClient::onEndTick);
-        LevelRenderEvents.BEFORE_GIZMOS.register(context -> renderPreview());
+        LevelRenderEvents.BEFORE_GIZMOS.register(context -> {
+            renderPreview();
+            AutoDigController.render();
+        });
     }
 
     private static void onEndTick(Minecraft client) {
@@ -180,6 +185,13 @@ public final class MassdigClient implements ClientModInitializer {
 
         refillPacketBudget();
         handleKeys(client);
+        AutoDigController.handleKeys(client);
+        AutoDigController.tick(client);
+
+        if (AutoDigController.state() == AutoDigState.RUNNING || AutoDigController.ownsMining()) {
+            stopActiveDigging(client);
+            return;
+        }
 
         updatePreview(client);
 

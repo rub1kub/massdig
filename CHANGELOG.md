@@ -2,6 +2,25 @@
 
 All notable changes to MassDig are documented here.
 
+## 2.7.0 - 2026-06-15
+
+### Added
+
+- AutoDig visual job planner with a separate GUI.
+- Area selection with points A and B plus in-world selection outline.
+- Automated jobs: Clear area, Quarry, Tunnel, and Ore vein.
+- AutoDig preview plan with highlighted planned, protected, blocked, and active blocks.
+- Start, pause, stop, and rebuild controls for AutoDig jobs.
+- Hotbar tool manager that switches to the best safe tool and respects minimum durability.
+- Safety pauses for full inventory, missing safe tool, open screens, low health, and lava-adjacent blocks.
+- Experimental careful autopilot that walks toward the next work area when enabled.
+- AutoDig HUD with job type, remaining blocks, completed blocks, and status.
+
+### Changed
+
+- Manual radius mining pauses while AutoDig owns an active mining task.
+- Main settings now link directly to the AutoDig planner.
+
 ## 2.6.0 - 2026-06-15
 
 ### Added

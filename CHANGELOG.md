@@ -2,6 +2,24 @@
 
 All notable changes to MassDig are documented here.
 
+## 2.8.0 - 2026-06-15
+
+### Added
+
+- AutoDig jobs: Branch mine and Flatten land.
+- AutoDig plan order modes: Top down, Nearest first, and Layer snake.
+- In-menu area editor: expand, shrink, move up, and move down.
+- Layer mini-map inside the AutoDig screen.
+- Y-layer preview controls with stronger in-world highlighting for the selected layer.
+- Branch mine controls for branch spacing, branch length, and one-side/two-side mining.
+- Estimated job time and failed-block counter plumbing.
+- Manual-control override pause for experimental autopilot.
+
+### Changed
+
+- AutoDig planner layout now reserves space for a visual layer map and richer job controls.
+- AutoDig render now highlights the selected Y layer separately from the rest of the plan.
+
 ## 2.7.0 - 2026-06-15
 
 ### Added

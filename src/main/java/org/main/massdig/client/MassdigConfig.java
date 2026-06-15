@@ -52,6 +52,11 @@ public final class MassdigConfig {
     public boolean autoStopWhenNoTool = true;
     public boolean autoKeepOres = false;
     public boolean autoAutopilot = false;
+    public String autoPlanOrder = AutoDigPlanOrder.TOP_DOWN.id;
+    public int autoLayerY = 0;
+    public int autoBranchSpacing = 3;
+    public int autoBranchLength = 32;
+    public boolean autoBothBranches = true;
 
     public static MassdigConfig load() {
         if (!Files.exists(PATH)) {
@@ -95,6 +100,7 @@ public final class MassdigConfig {
         matchMode = MassdigMatchMode.byId(matchMode).id;
         protection = MassdigProtection.byId(protection).id;
         autoJobType = AutoDigJobType.byId(autoJobType).id;
+        autoPlanOrder = AutoDigPlanOrder.byId(autoPlanOrder).id;
         packetLimitPerSecond = clamp(packetLimitPerSecond, 40, 260);
         safetyExtraTicks = clamp(safetyExtraTicks, 0, 20);
         legacyBlocksPerTick = clamp(legacyBlocksPerTick, 4, 64);
@@ -103,6 +109,8 @@ public final class MassdigConfig {
         autoLength = clamp(autoLength, 1, 256);
         autoDepth = clamp(autoDepth, 1, 128);
         autoMinToolDurability = clamp(autoMinToolDurability, 1, 90);
+        autoBranchSpacing = clamp(autoBranchSpacing, 2, 16);
+        autoBranchLength = clamp(autoBranchLength, 4, 128);
         return this;
     }
 
@@ -130,6 +138,10 @@ public final class MassdigConfig {
         return AutoDigJobType.byId(autoJobType);
     }
 
+    public AutoDigPlanOrder autoPlanOrder() {
+        return AutoDigPlanOrder.byId(autoPlanOrder);
+    }
+
     public void setMode(MassdigMode mode) {
         this.mode = mode.id;
         this.packetLimitPerSecond = mode.defaultPacketsPerSecond;
@@ -150,6 +162,10 @@ public final class MassdigConfig {
 
     public void setAutoJobType(AutoDigJobType type) {
         this.autoJobType = type.id;
+    }
+
+    public void setAutoPlanOrder(AutoDigPlanOrder order) {
+        this.autoPlanOrder = order.id;
     }
 
     public static int clamp(int value, int min, int max) {

@@ -80,7 +80,12 @@ AutoDig is a separate visual planner for bigger tasks:
 - Quarry: select a footprint and dig down by the chosen depth.
 - Tunnel: aim at a wall and generate a tunnel from width, height, and length.
 - Ore vein: aim at an ore and follow connected ore blocks of the same type.
+- Branch mine: generate a main tunnel with side branches on one or both sides.
+- Flatten land: cut a selected area down to the lower selected Y level.
 - Preview: planned blocks, protected blocks, blocked targets, and the active block are highlighted in-world.
+- Layer mini-map: inspect the selected Y layer directly in the AutoDig screen.
+- Area editor: expand, shrink, move up, and move down without reselecting corners.
+- Plan order: top-down, nearest-first, or layer-snake route sorting.
 - Tool manager: switches to the best hotbar tool and skips tools below the configured durability.
 - Safety pauses: full inventory, missing safe tool, open screen, low health, and lava-adjacent blocks.
 - Careful autopilot: optional experimental walking toward the next work area.

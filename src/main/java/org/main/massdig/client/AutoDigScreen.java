@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
 public final class AutoDigScreen extends Screen {
@@ -45,8 +46,9 @@ public final class AutoDigScreen extends Screen {
         toolsX = compactColumns ? layoutX : layoutX + (columnWidth + columnGap) * 2;
         runX = compactColumns ? sizeX : layoutX + (columnWidth + columnGap) * 3;
         taskY = layoutTop + 58;
-        int secondRowY = compactColumns ? taskY + 182 : taskY;
-        doneY = secondRowY + 182;
+        int sectionHeight = compactColumns ? 190 : 280;
+        int secondRowY = compactColumns ? taskY + sectionHeight : taskY;
+        doneY = (compactColumns ? secondRowY : taskY) + sectionHeight;
 
         addTaskControls(taskX, taskY);
         addSizeControls(sizeX, taskY);
@@ -86,6 +88,14 @@ public final class AutoDigScreen extends Screen {
             MassdigClient.config().save();
             b.setMessage(keepOresMessage());
         }));
+        addRenderableWidget(button(Component.translatable("massdig.auto.screen.expand"), x, y + ROW * 5, "massdig.auto.tooltip.expand", b -> {
+            AutoDigController.expandSelection(Minecraft.getInstance(), 1);
+            rebuild();
+        }));
+        addRenderableWidget(button(Component.translatable("massdig.auto.screen.shrink"), x, y + ROW * 6, "massdig.auto.tooltip.shrink", b -> {
+            AutoDigController.expandSelection(Minecraft.getInstance(), -1);
+            rebuild();
+        }));
     }
 
     private void addSizeControls(int x, int y) {
@@ -93,7 +103,9 @@ public final class AutoDigScreen extends Screen {
         addRenderableWidget(new HeightSlider(x, y + ROW, columnWidth, 20));
         addRenderableWidget(new LengthSlider(x, y + ROW * 2, columnWidth, 20));
         addRenderableWidget(new DepthSlider(x, y + ROW * 3, columnWidth, 20));
-        addRenderableWidget(button(Component.translatable("massdig.auto.screen.use_look"), x, y + ROW * 4, "massdig.auto.tooltip.use_look", b -> {
+        addRenderableWidget(new BranchSpacingSlider(x, y + ROW * 4, columnWidth, 20));
+        addRenderableWidget(new BranchLengthSlider(x, y + ROW * 5, columnWidth, 20));
+        addRenderableWidget(button(Component.translatable("massdig.auto.screen.use_look"), x, y + ROW * 6, "massdig.auto.tooltip.use_look", b -> {
             AutoDigController.setPointAFromLook(Minecraft.getInstance());
             AutoDigController.rebuildPlan(Minecraft.getInstance());
             rebuild();
@@ -122,6 +134,16 @@ public final class AutoDigScreen extends Screen {
             MassdigClient.config().save();
             b.setMessage(autopilotMessage());
         }));
+        addRenderableWidget(button(bothBranchesMessage(), x, y + ROW * 5, "massdig.auto.tooltip.both_branches", b -> {
+            MassdigClient.config().autoBothBranches = !MassdigClient.config().autoBothBranches;
+            MassdigClient.config().save();
+            b.setMessage(bothBranchesMessage());
+        }));
+        addRenderableWidget(button(orderMessage(), x, y + ROW * 6, "massdig.auto.tooltip.order", b -> {
+            MassdigClient.config().setAutoPlanOrder(MassdigClient.config().autoPlanOrder().next());
+            MassdigClient.config().save();
+            b.setMessage(orderMessage());
+        }));
     }
 
     private void addRunControls(int x, int y) {
@@ -137,6 +159,22 @@ public final class AutoDigScreen extends Screen {
         }));
         addRenderableWidget(button(Component.translatable("massdig.auto.screen.open_main"), x, y + ROW * 2, "massdig.auto.tooltip.open_main", b -> {
             Minecraft.getInstance().setScreen(new MassdigScreen(this));
+        }));
+        addRenderableWidget(button(Component.translatable("massdig.auto.screen.layer_down"), x, y + ROW * 3, "massdig.auto.tooltip.layer", b -> {
+            AutoDigController.layerDown(Minecraft.getInstance());
+            rebuild();
+        }));
+        addRenderableWidget(button(Component.translatable("massdig.auto.screen.layer_up"), x, y + ROW * 4, "massdig.auto.tooltip.layer", b -> {
+            AutoDigController.layerUp(Minecraft.getInstance());
+            rebuild();
+        }));
+        addRenderableWidget(button(Component.translatable("massdig.auto.screen.move_up"), x, y + ROW * 5, "massdig.auto.tooltip.move_y", b -> {
+            AutoDigController.moveSelection(Minecraft.getInstance(), Direction.UP, 1);
+            rebuild();
+        }));
+        addRenderableWidget(button(Component.translatable("massdig.auto.screen.move_down"), x, y + ROW * 6, "massdig.auto.tooltip.move_y", b -> {
+            AutoDigController.moveSelection(Minecraft.getInstance(), Direction.DOWN, 1);
+            rebuild();
         }));
     }
 
@@ -157,13 +195,15 @@ public final class AutoDigScreen extends Screen {
         graphics.centeredText(font, title, width / 2, layoutTop, 0xFFFFFF);
         graphics.centeredText(font, Component.translatable("massdig.auto.screen.subtitle"), width / 2, layoutTop + 14, 0xA0A0A0);
 
-        int secondRowY = compactColumns ? taskY + 182 : taskY;
+        int sectionHeight = compactColumns ? 190 : 280;
+        int secondRowY = compactColumns ? taskY + sectionHeight : taskY;
         drawSection(graphics, taskX, taskY - 22, Component.translatable("massdig.auto.section.task"), Component.translatable("massdig.auto.section.task_hint"));
         drawSection(graphics, sizeX, taskY - 22, Component.translatable("massdig.auto.section.size"), Component.translatable("massdig.auto.section.size_hint"));
         drawSection(graphics, toolsX, secondRowY - 22, Component.translatable("massdig.auto.section.tools"), Component.translatable("massdig.auto.section.tools_hint"));
         drawSection(graphics, runX, secondRowY - 22, Component.translatable("massdig.auto.section.run"), Component.translatable("massdig.auto.section.run_hint"));
 
-        int infoY = compactColumns ? doneY - 48 : taskY + ROW * 6;
+        int infoY = doneY - 34;
+        AutoDigController.drawMiniMap(graphics, layoutX, doneY - 106, Math.min(220, layoutWidth / 2 - 8), 64);
         graphics.text(font, pointLine("A", AutoDigController.pointA()), layoutX, infoY, 0xB8E986);
         graphics.text(font, pointLine("B", AutoDigController.pointB()), layoutX, infoY + 11, 0xB8E986);
         graphics.text(font, Component.empty()
@@ -173,11 +213,18 @@ public final class AutoDigScreen extends Screen {
                 .append(" / ")
                 .append(Component.translatable("massdig.auto.screen.protected"))
                 .append(" ")
-                .append(Integer.toString(AutoDigController.protectedCount())), layoutX + layoutWidth / 2, infoY, 0xA0A0A0);
+                .append(Integer.toString(AutoDigController.protectedCount()))
+                .append(" / ")
+                .append(Component.translatable("massdig.auto.screen.eta"))
+                .append(" ")
+                .append(Integer.toString(AutoDigController.estimatedSeconds()))
+                .append("s"), layoutX + layoutWidth / 2, infoY, 0xA0A0A0);
         graphics.text(font, Component.empty()
                 .append(Component.translatable("massdig.auto.screen.state"))
                 .append(": ")
                 .append(Component.literal(AutoDigController.state().name()))
+                .append("  Y:")
+                .append(Integer.toString(MassdigClient.config().autoLayerY))
                 .append("  ")
                 .append(AutoDigController.status()), layoutX + layoutWidth / 2, infoY + 11, 0xA0A0A0);
     }
@@ -225,6 +272,14 @@ public final class AutoDigScreen extends Screen {
 
     private static Component autopilotMessage() {
         return labelValue("massdig.auto.screen.autopilot", onOff(MassdigClient.config().autoAutopilot));
+    }
+
+    private static Component bothBranchesMessage() {
+        return labelValue("massdig.auto.screen.both_branches", onOff(MassdigClient.config().autoBothBranches));
+    }
+
+    private static Component orderMessage() {
+        return labelValue("massdig.auto.screen.order", Component.translatable(MassdigClient.config().autoPlanOrder().nameKey()));
     }
 
     private static Component labelValue(String key, Object value) {
@@ -348,6 +403,48 @@ public final class AutoDigScreen extends Screen {
 
         private static Component message() {
             return labelValue("massdig.auto.screen.durability", MassdigClient.config().autoMinToolDurability + "%");
+        }
+    }
+
+    private static final class BranchSpacingSlider extends AutoSlider {
+        BranchSpacingSlider(int x, int y, int width, int height) {
+            super(x, y, width, height, message(), (MassdigClient.config().autoBranchSpacing - 2) / 14.0D, "massdig.auto.tooltip.branch_spacing");
+        }
+
+        @Override
+        protected void updateMessage() {
+            setMessage(message());
+        }
+
+        @Override
+        protected void applyValue() {
+            MassdigClient.config().autoBranchSpacing = 2 + (int) Math.round(value * 14.0D);
+            MassdigClient.config().save();
+        }
+
+        private static Component message() {
+            return labelValue("massdig.auto.screen.branch_spacing", MassdigClient.config().autoBranchSpacing);
+        }
+    }
+
+    private static final class BranchLengthSlider extends AutoSlider {
+        BranchLengthSlider(int x, int y, int width, int height) {
+            super(x, y, width, height, message(), (MassdigClient.config().autoBranchLength - 4) / 124.0D, "massdig.auto.tooltip.branch_length");
+        }
+
+        @Override
+        protected void updateMessage() {
+            setMessage(message());
+        }
+
+        @Override
+        protected void applyValue() {
+            MassdigClient.config().autoBranchLength = 4 + (int) Math.round(value * 124.0D);
+            MassdigClient.config().save();
+        }
+
+        private static Component message() {
+            return labelValue("massdig.auto.screen.branch_length", MassdigClient.config().autoBranchLength);
         }
     }
 }

@@ -4,7 +4,9 @@ public enum AutoDigJobType {
     CLEAR_AREA("clear_area"),
     QUARRY("quarry"),
     TUNNEL("tunnel"),
-    ORE_VEIN("ore_vein");
+    ORE_VEIN("ore_vein"),
+    BRANCH_MINE("branch_mine"),
+    FLATTEN("flatten");
 
     public final String id;
 

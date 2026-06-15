@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -59,6 +60,9 @@ public final class AutoDigController {
     private static int protectedCount;
     private static int minedCount;
     private static int failedCount;
+    private static int planMinY;
+    private static int planMaxY;
+    private static int estimatedSeconds;
     private static int waitTicks;
     private static boolean autopilotPressingForward;
 
@@ -173,6 +177,22 @@ public final class AutoDigController {
         return minedCount;
     }
 
+    public static int failedCount() {
+        return failedCount;
+    }
+
+    public static int estimatedSeconds() {
+        return estimatedSeconds;
+    }
+
+    public static int planMinY() {
+        return planMinY;
+    }
+
+    public static int planMaxY() {
+        return planMaxY;
+    }
+
     public static Component status() {
         return status;
     }
@@ -205,6 +225,9 @@ public final class AutoDigController {
         protectedCount = 0;
         minedCount = 0;
         failedCount = 0;
+        estimatedSeconds = 0;
+        planMinY = 0;
+        planMaxY = 0;
         activeTask = null;
 
         if (client.player == null || client.level == null) {
@@ -216,7 +239,10 @@ public final class AutoDigController {
             case QUARRY -> buildBoxPlan(client, true);
             case TUNNEL -> buildTunnelPlan(client);
             case ORE_VEIN -> buildOrePlan(client);
+            case BRANCH_MINE -> buildBranchMinePlan(client);
+            case FLATTEN -> buildFlattenPlan(client);
         }
+        updatePlanStats();
         sortPlan(client.player);
         plannedCount = plan.size();
         state = plannedCount > 0 ? AutoDigState.PREVIEW : AutoDigState.BLOCKED;
@@ -257,6 +283,40 @@ public final class AutoDigController {
         status = reason;
     }
 
+    public static void expandSelection(Minecraft client, int amount) {
+        if (pointA == null || pointB == null) {
+            return;
+        }
+        BlockPos min = boxMin(pointA, pointB);
+        BlockPos max = boxMax(pointA, pointB);
+        if (amount < 0 && (max.getX() - min.getX() < 2 || max.getY() - min.getY() < 2 || max.getZ() - min.getZ() < 2)) {
+            status = Component.translatable("massdig.auto.status.selection_too_small");
+            return;
+        }
+        pointA = min.offset(-amount, -amount, -amount);
+        pointB = max.offset(amount, amount, amount);
+        rebuildPlan(client);
+    }
+
+    public static void moveSelection(Minecraft client, Direction direction, int amount) {
+        if (pointA == null || pointB == null) {
+            return;
+        }
+        pointA = pointA.relative(direction, amount);
+        pointB = pointB.relative(direction, amount);
+        rebuildPlan(client);
+    }
+
+    public static void layerUp(Minecraft client) {
+        MassdigClient.config().autoLayerY = Math.min(planMaxY, MassdigClient.config().autoLayerY + 1);
+        MassdigClient.config().save();
+    }
+
+    public static void layerDown(Minecraft client) {
+        MassdigClient.config().autoLayerY = Math.max(planMinY, MassdigClient.config().autoLayerY - 1);
+        MassdigClient.config().save();
+    }
+
     public static void stop(Minecraft client) {
         if (client != null && client.gameMode != null && activeTask != null && activeTask.started && !activeTask.waitingForConfirm) {
             client.gameMode.stopDestroyBlock();
@@ -283,12 +343,14 @@ public final class AutoDigController {
         }
 
         GizmoStyle planStyle = GizmoStyle.fill(PLAN_COLOR);
+        GizmoStyle layerStyle = GizmoStyle.fill(0x6639F56B);
         int rendered = 0;
         for (BlockPos pos : plan) {
             if (rendered++ >= MAX_RENDER_BLOCKS) {
                 break;
             }
-            Gizmos.cuboid(pos, 0.012F, planStyle);
+            Gizmos.cuboid(pos, pos.getY() == MassdigClient.config().autoLayerY ? 0.02F : 0.012F,
+                    pos.getY() == MassdigClient.config().autoLayerY ? layerStyle : planStyle);
         }
 
         GizmoStyle protectedStyle = GizmoStyle.fill(PROTECTED_COLOR);
@@ -304,6 +366,42 @@ public final class AutoDigController {
             Gizmos.cuboid(activeTask.pos, 0.032F, GizmoStyle.fill(ACTIVE_COLOR));
         } else if (state == AutoDigState.BLOCKED && !plan.isEmpty()) {
             Gizmos.cuboid(plan.get(0), 0.025F, GizmoStyle.fill(BLOCKED_COLOR));
+        }
+    }
+
+    public static void drawMiniMap(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
+        graphics.fill(x, y, x + width, y + height, 0x66000000);
+        graphics.outline(x, y, width, height, 0x9939F56B);
+        if (pointA == null || pointB == null) {
+            return;
+        }
+        BlockPos min = boxMin(pointA, pointB);
+        BlockPos max = boxMax(pointA, pointB);
+        int spanX = Math.max(1, max.getX() - min.getX() + 1);
+        int spanZ = Math.max(1, max.getZ() - min.getZ() + 1);
+        int layer = MassdigClient.config().autoLayerY;
+        int cellW = Math.max(1, width / Math.min(spanX, 48));
+        int cellH = Math.max(1, height / Math.min(spanZ, 48));
+        for (BlockPos pos : plan) {
+            if (pos.getY() != layer) {
+                continue;
+            }
+            int px = x + (pos.getX() - min.getX()) * width / spanX;
+            int pz = y + (pos.getZ() - min.getZ()) * height / spanZ;
+            graphics.fill(px, pz, Math.min(x + width, px + cellW), Math.min(y + height, pz + cellH), 0xAA39F56B);
+        }
+        for (BlockPos pos : protectedSet) {
+            if (pos.getY() != layer) {
+                continue;
+            }
+            int px = x + (pos.getX() - min.getX()) * width / spanX;
+            int pz = y + (pos.getZ() - min.getZ()) * height / spanZ;
+            graphics.fill(px, pz, Math.min(x + width, px + cellW), Math.min(y + height, pz + cellH), 0xAAFF9F1C);
+        }
+        if (activeTask != null && activeTask.pos.getY() == layer) {
+            int px = x + (activeTask.pos.getX() - min.getX()) * width / spanX;
+            int pz = y + (activeTask.pos.getZ() - min.getZ()) * height / spanZ;
+            graphics.fill(px, pz, Math.min(x + width, px + cellW + 1), Math.min(y + height, pz + cellH + 1), 0xCCFF2E63);
         }
     }
 
@@ -328,6 +426,10 @@ public final class AutoDigController {
                 return;
             }
             if (MassdigClient.config().autoAutopilot) {
+                if (manualOverride(client)) {
+                    pause(client, Component.translatable("massdig.auto.status.manual_override"));
+                    return;
+                }
                 autopilotToward(client, nearest);
                 status = Component.translatable("massdig.auto.status.autopilot");
             } else {
@@ -486,6 +588,62 @@ public final class AutoDigController {
         pointB = start.relative(direction, length - 1).relative(right, rightCount).above(height - 1);
     }
 
+    private static void buildBranchMinePlan(Minecraft client) {
+        BlockPos start = lookedBlock(client);
+        if (start == null) {
+            start = pointA;
+        }
+        if (start == null) {
+            return;
+        }
+        Direction forward = client.hitResult instanceof BlockHitResult hit ? hit.getDirection().getOpposite() : horizontalFacing(client.player);
+        Direction right = forward.getClockWise();
+        int mainLength = MassdigClient.config().autoLength;
+        int height = MassdigClient.config().autoHeight;
+        int spacing = MassdigClient.config().autoBranchSpacing;
+        int branchLength = MassdigClient.config().autoBranchLength;
+
+        for (int depth = 0; depth < mainLength; depth++) {
+            addTunnelSlice(client, start.relative(forward, depth), right, 1, height);
+            if (depth > 0 && depth % spacing == 0) {
+                for (int branch = 1; branch <= branchLength; branch++) {
+                    addTunnelSlice(client, start.relative(forward, depth).relative(right, branch), right, 1, height);
+                    if (MassdigClient.config().autoBothBranches) {
+                        addTunnelSlice(client, start.relative(forward, depth).relative(right.getOpposite(), branch), right, 1, height);
+                    }
+                }
+            }
+        }
+        pointA = start;
+        pointB = start.relative(forward, mainLength - 1).relative(right, branchLength).above(height - 1);
+    }
+
+    private static void buildFlattenPlan(Minecraft client) {
+        if (pointA == null || pointB == null || client.level == null) {
+            return;
+        }
+        BlockPos min = boxMin(pointA, pointB);
+        BlockPos max = boxMax(pointA, pointB);
+        int targetY = Math.min(pointA.getY(), pointB.getY());
+        for (int y = max.getY(); y > targetY; y--) {
+            for (int z = min.getZ(); z <= max.getZ(); z++) {
+                for (int x = min.getX(); x <= max.getX(); x++) {
+                    addPlanned(client, new BlockPos(x, y, z));
+                }
+            }
+        }
+    }
+
+    private static void addTunnelSlice(Minecraft client, BlockPos center, Direction right, int width, int height) {
+        int left = width / 2;
+        int rightCount = width - left - 1;
+        for (int y = 0; y < height; y++) {
+            for (int x = -left; x <= rightCount; x++) {
+                addPlanned(client, center.relative(right, x).above(y));
+            }
+        }
+    }
+
     private static void buildOrePlan(Minecraft client) {
         BlockPos start = lookedBlock(client);
         if (start == null) {
@@ -620,9 +778,41 @@ public final class AutoDigController {
     }
 
     private static void sortPlan(Player player) {
-        plan.sort(Comparator
-                .comparingInt((BlockPos pos) -> pos.getY()).reversed()
-                .thenComparingDouble(pos -> pos.distSqr(player.blockPosition())));
+        switch (MassdigClient.config().autoPlanOrder()) {
+            case NEAREST -> plan.sort(Comparator.comparingDouble(pos -> pos.distSqr(player.blockPosition())));
+            case SNAKE -> plan.sort(Comparator
+                    .comparingInt((BlockPos pos) -> pos.getY()).reversed()
+                    .thenComparingInt(pos -> pos.getZ())
+                    .thenComparingInt(pos -> (pos.getZ() & 1) == 0 ? pos.getX() : -pos.getX()));
+            case TOP_DOWN -> plan.sort(Comparator
+                    .comparingInt((BlockPos pos) -> pos.getY()).reversed()
+                    .thenComparingDouble(pos -> pos.distSqr(player.blockPosition())));
+        }
+    }
+
+    private static void updatePlanStats() {
+        if (plan.isEmpty() && protectedSet.isEmpty()) {
+            planMinY = 0;
+            planMaxY = 0;
+            estimatedSeconds = 0;
+            return;
+        }
+        planMinY = Integer.MAX_VALUE;
+        planMaxY = Integer.MIN_VALUE;
+        for (BlockPos pos : plan) {
+            planMinY = Math.min(planMinY, pos.getY());
+            planMaxY = Math.max(planMaxY, pos.getY());
+        }
+        for (BlockPos pos : protectedSet) {
+            planMinY = Math.min(planMinY, pos.getY());
+            planMaxY = Math.max(planMaxY, pos.getY());
+        }
+        if (planMinY == Integer.MAX_VALUE) {
+            planMinY = 0;
+            planMaxY = 0;
+        }
+        MassdigClient.config().autoLayerY = MassdigConfig.clamp(MassdigClient.config().autoLayerY == 0 ? planMaxY : MassdigClient.config().autoLayerY, planMinY, planMaxY);
+        estimatedSeconds = Math.max(1, plan.size() * 2 / 3);
     }
 
     private static Direction sideFor(Player player, BlockPos pos) {
@@ -656,6 +846,19 @@ public final class AutoDigController {
         client.player.setYRot(yaw);
         client.options.keyUp.setDown(true);
         autopilotPressingForward = true;
+    }
+
+    private static boolean manualOverride(Minecraft client) {
+        if (!autopilotPressingForward) {
+            return false;
+        }
+        return client.options.keyLeft.isDown()
+                || client.options.keyRight.isDown()
+                || client.options.keyDown.isDown()
+                || client.options.keyJump.isDown()
+                || client.options.keyShift.isDown()
+                || client.options.keyAttack.isDown()
+                || client.options.keyUse.isDown();
     }
 
     private static void releaseAutopilot(Minecraft client) {

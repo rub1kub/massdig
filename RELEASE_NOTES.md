@@ -1,6 +1,6 @@
-# MassDig 2.5.2
+# MassDig 2.5.3
 
-MassDig 2.5.2 is a polished Minecraft 26.1.2 Fabric client mod focused on mining workflow, configurability, and clear user feedback.
+MassDig 2.5.3 is a polished Minecraft 26.1.2 Fabric client mod focused on mining workflow, configurability, and clear user feedback.
 
 ## Highlights
 
@@ -11,11 +11,11 @@ MassDig 2.5.2 is a polished Minecraft 26.1.2 Fabric client mod focused on mining
 - Server-aware packet pacing and reach filtering.
 - Dedicated presets for Server, Normal, Deepslate, and Soft blocks.
 
-## What's New in 2.5.2
+## What's New in 2.5.3
 
-- Blocks already waiting in the radius mining queue are now highlighted separately.
-- The active radius block now has its own stronger highlight.
-- This makes it easier to understand what MassDig is about to mine and what it is currently processing.
+- Radius mining now clears its queue unless the attack button is held while a pickaxe is in the main hand.
+- Releasing attack or switching away from a pickaxe now stops the active radius task immediately.
+- Fast digging remains a separate feature and is not tied to the radius mining queue.
 
 ## Compatibility
 
@@ -29,8 +29,8 @@ MassDig 2.5.2 is a polished Minecraft 26.1.2 Fabric client mod focused on mining
 
 Attach these files to the GitHub release:
 
-- `massdig-2.5.2+mc26.1.2.jar`
-- `massdig-2.5.2+mc26.1.2-sources.jar`
+- `massdig-2.5.3+mc26.1.2.jar`
+- `massdig-2.5.3+mc26.1.2-sources.jar`
 
 ## Notes
 

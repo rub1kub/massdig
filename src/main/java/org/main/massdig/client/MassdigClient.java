@@ -15,8 +15,10 @@ import net.minecraft.gizmos.Gizmos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -156,7 +158,7 @@ public final class MassdigClient implements ClientModInitializer {
             return;
         }
 
-        if (!client.options.keyAttack.isDown()) {
+        if (!isRadiusMiningHeld(client)) {
             stopActiveDigging(client);
             showFastMiningStatus(client);
             return;
@@ -190,6 +192,17 @@ public final class MassdigClient implements ClientModInitializer {
         while (decRadiusKey.consumeClick()) {
             setRadius(config.radius - 1);
         }
+    }
+
+    private static boolean isRadiusMiningHeld(Minecraft client) {
+        return client.options.keyAttack.isDown()
+                && client.player != null
+                && isHoldingPickaxe(client.player);
+    }
+
+    private static boolean isHoldingPickaxe(Player player) {
+        ItemStack stack = player.getMainHandItem();
+        return stack.is(ItemTags.PICKAXES);
     }
 
     private static void refillPacketBudget() {

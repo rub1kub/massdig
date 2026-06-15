@@ -2,6 +2,13 @@
 
 All notable changes to MassDig are documented here.
 
+## 2.5.3 - 2026-06-15
+
+### Fixed
+
+- Radius mining now clears its queue unless the attack button is held while a pickaxe is in the main hand.
+- Switching away from a pickaxe or releasing attack now stops the active radius task immediately.
+
 ## 2.5.2 - 2026-06-15
 
 ### Added

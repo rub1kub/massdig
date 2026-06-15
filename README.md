@@ -38,6 +38,7 @@ Fast digging and radius digging are separate toggles. Players can enable either 
 Radius digging includes:
 
 - Radius limit up to 6 blocks.
+- Queue only runs while the attack button is held with a pickaxe in the main hand.
 - Shapes: Wall, Tunnel, Cube.
 - Presets: Server, Normal, Deepslate, Soft blocks.
 - Hard-block priority for deepslate-like blocks.

@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "MassDig",
   "description": "Client-side mining quality-of-life mod with fast digging, smart radius drilling, visual AutoDig jobs, block protection, previews, profiles, localization, and server-aware packet pacing.",
-  "authors": ["dimar"],
+  "authors": ["rub1kub"],
   "contact": {
     "homepage": "https://github.com/rub1kub/massdig",
     "sources": "https://github.com/rub1kub/massdig",

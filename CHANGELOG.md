@@ -2,6 +2,22 @@
 
 All notable changes to MassDig are documented here.
 
+## 2.9.0 - 2026-06-15
+
+### Added
+
+- New MassDig hub screen with three clear entry points: Fast Digging, Radius Drill, and AutoDig.
+- Separate Radius Drill settings screen with beginner-friendly controls first and technical controls behind Advanced.
+- Built-in guide screen explaining which mode to use, how highlights work, and why AutoDig is a separate mode.
+- New English and Russian localization for the hub, Radius Drill screen, and guide.
+
+### Changed
+
+- Main settings no longer show every option in one dense four-column list.
+- Radius Drill now keeps server, safety, shape, filter, and deepslate-related controls together on its own screen.
+- Safe server profile is available directly from the hub.
+- Mod metadata now lists `rub1kub` as the author.
+
 ## 2.8.0 - 2026-06-15
 
 ### Added

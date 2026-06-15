@@ -5,12 +5,13 @@
 
 MassDig is a client-side Fabric mod for Minecraft 26.1.2 that improves mining workflow while keeping the implementation transparent, configurable, and server-aware.
 
-The project started as a port and redesign of a radius mining helper. It evolved into a small production-style client mod with two independent features:
+The project started as a port and redesign of a radius mining helper. It evolved into a small production-style client mod with three independent user-facing modes:
 
-- Fast digging - removes the client-side delay between mined blocks.
-- Radius digging - mines nearby blocks around the target block with queueing, previews, modes, shapes, and packet pacing.
-- Smart safety layer - protects useful blocks, avoids lava, shows skipped targets, and limits packet pressure.
-- AutoDig jobs - visually plan and run larger mining tasks like clearing an area, quarrying, tunneling, or following ore veins.
+- Fast Digging - removes the client-side delay between mined blocks.
+- Radius Drill - mines nearby blocks around the target block with queueing, previews, modes, shapes, and packet pacing.
+- AutoDig - visually plans and runs larger mining tasks like clearing an area, quarrying, tunneling, branch mining, flattening land, or following ore veins.
+
+MassDig also includes a smart safety layer that protects useful blocks, avoids lava, shows skipped targets, and limits packet pressure.
 
 > Use this mod only where client-side mining helpers are allowed by the server rules.
 
@@ -24,20 +25,21 @@ This repository demonstrates practical Java client mod development beyond a simp
 - Network-aware packet pacing to reduce accidental packet-rate disconnects.
 - User-facing configuration UI with beginner-friendly Russian and English localization.
 - Live in-world block preview using Minecraft 26 gizmos.
-- Gradle-based build automation and GitHub Actions CI.
+- Gradle-based build automation and release packaging.
 
 ## Features
 
 ### Independent Mining Modes
 
-Fast digging and radius digging are separate toggles. Players can enable either feature independently:
+Fast Digging, Radius Drill, and AutoDig are separate modes. Players can enable or open the mode they need without guessing which setting controls which behavior.
 
-- Fast digging: removes the vanilla client delay between blocks.
-- Radius digging: adds queue-based area mining around the aimed block.
+- Fast Digging: removes the vanilla client delay between blocks.
+- Radius Drill: adds queue-based area mining around the aimed block.
+- AutoDig: builds a visual plan first, then executes a larger mining task.
 
-### Radius Digging
+### Radius Drill
 
-Radius digging includes:
+Radius Drill includes:
 
 - Radius limit up to 6 blocks.
 - Queue only runs while the attack button is held with a pickaxe in the main hand.
@@ -63,7 +65,7 @@ MassDig highlights mining targets in the world:
 
 ### Server-Aware Controls
 
-The mod does not try to bypass server rules. Instead it exposes safe controls:
+The mod does not try to bypass server rules. Instead it exposes careful controls:
 
 - Packet-per-second budget.
 - Kick guard levels: Light, Normal, Strong.
@@ -92,12 +94,13 @@ AutoDig is a separate visual planner for bigger tasks:
 
 ## Screens and UX
 
-The settings screen is organized around the user's mental model:
+The settings UI is organized around the user's mental model:
 
-- Main - independent toggles, HUD, and previews.
-- Drill - profile, radius, speed, shape, and what block types to mine.
-- Smart - packet guard, hard-block timing, reach checks, and slowdown.
-- Safety - useful blocks, fragile blocks, player space, lava, and low-health pause.
+- Main hub - three large entry points: Fast Digging, Radius Drill, and AutoDig.
+- Radius Drill - simple controls first: enable, profile, radius, shape, block filter, kick guard, and safety.
+- Advanced Radius Drill - packet limits, extra wait, HUD, skipped preview, hard-block priority, and low-health pause.
+- Guide - an in-game explanation of which mode to use and how target colors work.
+- AutoDig - a separate planner screen for larger jobs, selections, mini-map inspection, and execution controls.
 
 The UI is localized in English and Russian and is available through Mod Menu.
 
@@ -109,8 +112,8 @@ Default key bindings:
 | --- | --- |
 | `;` | Open MassDig settings |
 | `H` | Open AutoDig planner |
-| `\` | Toggle radius digging |
-| `G` | Toggle fast digging |
+| `\` | Toggle Radius Drill |
+| `G` | Toggle Fast Digging |
 | `B` | Cycle profile |
 | `V` | Cycle radius shape |
 | `N` | Cycle block filter |
@@ -183,9 +186,9 @@ build/libs/
 
 This project is a compact example of shipping a real client-side Java feature with product thinking:
 
-- Designed and implemented a configurable UI instead of hard-coded behavior.
-- Refactored a single-purpose mod into independent features.
-- Added localization, visual feedback, queue management, and release automation.
+- Designed and implemented a user-centered UI instead of exposing every internal setting at once.
+- Refactored a single-purpose mod into independent modes with clear responsibilities.
+- Added localization, visual feedback, queue management, safety rules, and release packaging.
 - Investigated Minecraft client/server block-breaking behavior and adapted the algorithm for hard blocks.
 - Balanced user experience, network safety, and maintainable code.
 
@@ -193,7 +196,7 @@ Relevant keywords: Java, Gradle, Fabric API, Minecraft modding, mixins, client-s
 
 ## Кратко по-русски
 
-MassDig - клиентский Fabric-мод для Minecraft 26.1.2. В нем отдельно работают быстрое копание и бурилка радиусом. Проект показывает навыки Java-разработки, работы с Fabric API, mixin-ами, клиентской сетевой логикой, UI, локализацией и сборкой через Gradle.
+MassDig - клиентский Fabric-мод для Minecraft 26.1.2. В нем отдельно работают быстрое копание, бурилка радиусом и AutoDig для крупных задач вроде карьера, туннеля или очистки области. Проект показывает навыки Java-разработки, Fabric API, mixin-логики, клиентской сетевой логики, UI, локализации, Gradle-сборки и продуктового подхода к удобству пользователя.
 
 ## Ethics
 
